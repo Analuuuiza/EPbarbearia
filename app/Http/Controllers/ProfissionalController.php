@@ -217,35 +217,7 @@ class ProfissionalController extends Controller
         ]);
     }
 
-    public function exportarCsv()
-    {
-        $profissionals = profissional::all();
-
-        $nomeArquivo = 'profissionals.csv';
-
-        $filePath = storage_path('app/public/' . $nomeArquivo);
-
-        $handle = fopen($filePath, "w");
-
-        fputcsv($handle, array('nome', 'E-mail', 'cpf', 'celular',), ';');
-
-        foreach ($profissionals as $u) {
-            fputcsv($handle, array(
-                $u->nome,
-                $u->email,
-                $u->cpf,
-                $u->celular,
-
-            ), ';');
-        }
-
-        fclose($handle);
-
-        return Response::download(public_path() . '/storage/' . $nomeArquivo)
-            ->deleteFileAfterSend(true);
-    }
-
-    public function esqueciSenha(Request $request)
+    public function esqueciSenhaProfissional(Request $request)
     {
         $profissionals = profissional::where('cpf', '=', $request->cpf)->where('email', '=', $request->email)->first();
 

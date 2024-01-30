@@ -10,7 +10,9 @@ class FormaDePagamentoController extends Controller
     public function store(Request $request)
     {
         $pagamentos = Pagamento::create([
-            'nome_pagamento' => $request->nome_pagamento,
+            'nome' => $request->nome,
+            'taxa' => $request->taxa,
+            'status' => $request->status,
            
         ]);
 
@@ -51,15 +53,71 @@ class FormaDePagamentoController extends Controller
         }
 
         if (isset($request->nome)) {
-            $pagamentos->nome_pagamento = $request->nome_pagamento;
+            $pagamentos->nome = $request->nome;
         }
-        
+        if (isset($request->taxa)) {
+            $pagamentos->taxa = $request->taxa;
+        }
+        if (isset($request->status)) {
+            $pagamentos->status = $request->status;
+        }
 
         $pagamentos->update();
 
         return response()->json([
             'status' => true,
             'message' => "Cadastro atualizado"
+        ]);
+    }
+
+    public function pesquisarPorNome(Request $request)
+    {
+        $pagamentos = Pagamento::where('nome', 'like', '%' . $request->nome . '%')->get();
+
+        if (count($pagamentos) > 0) {
+            return response()->json([
+                'status' => true,
+                'data' => $pagamentos
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'data' => 'Não há resultados para a pesquisa.'
+        ]);
+    }
+
+    public function pesquisarPorTaxa(Request $request)
+    {
+        $pagamentos = Pagamento::where('taxa', 'like', '%' . $request->taxa . '%')->get();
+
+        if (count($pagamentos) > 0) {
+            return response()->json([
+                'status' => true,
+                'data' => $pagamentos
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'data' => 'Não há resultados para a pesquisa.'
+        ]);
+    }
+
+    public function pesquisarPorStatus(Request $request)
+    {
+        $pagamentos = Pagamento::where('status', 'like', '%' . $request->status . '%')->get();
+
+        if (count($pagamentos) > 0) {
+            return response()->json([
+                'status' => true,
+                'data' => $pagamentos
+            ]);
+        }
+
+        return response()->json([
+            'status' => false,
+            'data' => 'Não há resultados para a pesquisa.'
         ]);
     }
 }

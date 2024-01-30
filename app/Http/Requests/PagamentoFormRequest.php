@@ -24,7 +24,9 @@ class PagamentoFormRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome_pagamento' => 'required|max:80|min:5',
+            'nome' => 'required|max:80|min:5',
+            'taxa' => 'required|max:80|min:5',
+            'status' => 'required|max:80|boolean',
         ];
     }
 
@@ -39,11 +41,14 @@ class PagamentoFormRequest extends FormRequest
     public function messages()
     {
         return [
-            'nome_pagamento.required' => 'O campo nome é obrigatorio',
-            'nome_pagamento.max' => 'o campo nome deve conter no maximo 80 caracteres',
-            'nome_pagamento.min' => 'o campo nome dever conter no minimo 5 caracteres',
-           
-           
+            'nome.required' => 'O campo nome é obrigatorio',
+            'nome.max' => 'o campo nome deve conter no maximo 80 caracteres',
+            'nome.min' => 'o campo nome dever conter no minimo 5 caracteres',
+            'taxa.required' => 'O campo taxa é obrigatorio',
+            'taxa.max' => 'o campo taxa deve conter no maximo 80 caracteres',
+            'taxa.min' => 'o campo taxa dever conter no minimo 5 caracteres',
+            'status.required' => 'O campo status é obrigatorio',
+            'nome.max' => 'o campo nome deve conter no maximo 80 caracteres',
 
         ];
     }

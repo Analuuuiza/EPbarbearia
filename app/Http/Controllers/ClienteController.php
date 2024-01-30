@@ -238,34 +238,6 @@ class ClienteController extends Controller
         ]);
     }
 
-    public function exportarCsv()
-    {
-        $clientes = clientes::all();
-
-        $nomeArquivo = 'clientes.csv';
-
-        $filePath = storage_path('app/public/' . $nomeArquivo);
-
-        $handle = fopen($filePath, "w");
-
-        fputcsv($handle, array('nome', 'E-mail', 'cpf', 'celular',), ';');
-
-        foreach ($clientes as $u) {
-            fputcsv($handle, array(
-                $u->nome,
-                $u->email,
-                $u->cpf,
-                $u->celular,
-
-            ), ';');
-        }
-
-        fclose($handle);
-
-        return Response::download(public_path() . '/storage/' . $nomeArquivo)
-            ->deleteFileAfterSend(true);
-    }
-
     public function esqueciSenhaCliente(Request $request)
     {
         $cliente = clientes::where('cpf', $request->cpf)->where('email', $request->email)->first();
