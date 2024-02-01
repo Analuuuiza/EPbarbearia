@@ -1,6 +1,6 @@
 
 
-# ERAShair API com PHP e Laravel
+# EPbarbearia API com PHP e Laravel
 
 Este projeto de um site de salão de beleza/barbearia desenvolvido para agendar seu dia e horario, será proporcionado diversos serviços de cortes de cabelos, penteados e etc. Uma plataforma moderna e pratica com mais de um tipo de agendamento.Sem contar o modo de funcionarios que ira propocionar uma oportunidade de emprego,fazendo com que sua carreira começe.
 
@@ -26,11 +26,11 @@ Certifique-se de ter os seguintes requisitos atendidos antes de começar a traba
 
 1. Clone este repositório para o seu ambiente de desenvolvimento local utilizando o comando:
 ```
- git clone https://github.com/MIMIMINISAIA/ERAShair.git
+ git clone https://github.com/Analuuuiza/EPbarbearia.git
 ```
 2. Acesse o diretório do projeto:
 ```
-cd ERAShair
+cd EPbarbearia
 ```
 3. inicializando o Repositorio
 ```
