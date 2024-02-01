@@ -137,32 +137,4 @@ class ServicoController extends Controller
             'message' => "Cadastro excluido com sucesso"
         ]);
     }
-
-    public function exportarCsv()
-    {
-        $servicos = servico::all();
-
-        $nomeArquivo = 'servicos.csv';
-
-        $filePath = storage_path('app/public/' . $nomeArquivo);
-
-        $handle = fopen($filePath, "w");
-
-        fputcsv($handle, array('nome', 'E-mail', 'cpf', 'celular',), ';');
-
-        foreach ($servicos as $u) {
-            fputcsv($handle, array(
-                $u->nome,
-                $u->email,
-                $u->cpf,
-                $u->celular,
-
-            ), ';');
-        }
-
-        fclose($handle);
-
-        return Response::download(public_path() . '/storage/' . $nomeArquivo)
-            ->deleteFileAfterSend(true);
-    }
 }
