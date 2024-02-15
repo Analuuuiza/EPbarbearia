@@ -5,36 +5,69 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ClientesFormRequest;
 use App\Models\clientes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Response;
 
 class ClienteController extends Controller
 {
-    public function store(ClientesFormRequest $request)
-    {
-        $clientes = clientes::create([
-            'nome' => $request->nome,
-            'celular' => $request->celular,
-            'email' => $request->email,
-            'cpf' => $request->cpf,
-            'dataNascimento' => $request->dataNascimento,
-            'cidade' => $request->cidade,
-            'estado' => $request->estado,
-            'pais' => $request->pais,
-            'rua' => $request->rua,
-            'numero' => $request->numero,
-            'bairro' => $request->bairro,
-            'cep' => $request->cep,
-            'complemento' => $request->complemento,
-            'senha' => Hash::make($request->senha),
+    public function store(Request $request){
+        try {
+            $data = $request->all();
 
-        ]);
+            $data['password'] = Hash::make($request->password);
 
-        return response()->json([
-            "success" => true,
-            "message" => "Cliente Cadastrado com sucesso",
-            "data" => $clientes
-        ], 200);
+            $response= clientes::create($data)->createToken($request->server('HTTP_USER_AGENT'))->plainTextToken;
+
+            return response()->json([
+                'status'=> 'success',
+                'message'=> "Cliente cadastrado com sucesso",
+                'token'=> $response
+            ],200);
+
+         } catch(\Throwable $th){
+            return response()->json([
+                'status'=> false,
+                'message'=> $th->getMessage()
+            ],500);
+         }
+    }
+
+    public function login(Request $request){
+        
+        try{
+
+            if(Auth::guard('clientes')->attempt([
+                'email'=> $request->email,
+                'password'=> $request->password 
+            ])) {
+                
+                $user = Auth::guard('clientes')->user();
+                $token = $user->createToken($request->server('HTTP_USER_AGENT', ['clientes']))->plainTextToken;
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'login efetuado com sucesso',
+                    'token' => $token
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'credenciais incorretas'
+                ]);
+            }
+        } catch(\Throwable $th){
+            return response()->json([
+                'status'=> false,
+                'message'=> $th->getMessage() 
+            ], 500);
+        }
+    }
+
+    public function verificarUsuarioLogado(){
+
+        return 'logado';
+        
     }
 
     public function retornarTodos()
@@ -65,7 +98,7 @@ class ClienteController extends Controller
 
     public function pesquisarPorNome(Request $request)
     {
-        $clientes = clientes::where('nome', 'like', '%' . $request->nome . '%')->get();
+        $clientes = clientes::where('name', 'like', '%' . $request->name . '%')->get();
 
         if (count($clientes) > 0) {
             return response()->json([
@@ -184,8 +217,8 @@ class ClienteController extends Controller
         if (isset($request->complemento)) {
             $cliente->complemento = $request->complemento;
         }
-        if (isset($request->senha)) {
-            $cliente->senha = $request->senha;
+        if (isset($request->password)) {
+            $cliente->password = $request->password;
         }
 
         $cliente->update();
@@ -216,7 +249,7 @@ class ClienteController extends Controller
         ]);
     }
 
-    public function esqueciSenha(Request $request)
+    public function esquecipassword(Request $request)
     {
         $cliente = clientes::where('cpf', '=', $request->cpf)->first();
 
@@ -228,7 +261,7 @@ class ClienteController extends Controller
             ]);
         }
 
-        $cliente->senha = Hash::make($cliente->cpf);
+        $cliente->password = Hash::make($cliente->cpf);
 
         $cliente->update();
 
@@ -243,17 +276,17 @@ class ClienteController extends Controller
         $cliente = clientes::where('cpf', $request->cpf)->where('email', $request->email)->first();
 
         if (isset($cliente)) {
-            $cliente->senha = Hash::make($cliente->senha);
+            $cliente->password = Hash::make($cliente->password);
             $cliente->update();
             return response()->json([
                 'status' => true,
-                'message' => 'senha redefinida.'
+                'message' => 'Senha redefinida.'
             ]);
         }
 
         return response()->json([
             'status' => false,
-            'message' => 'não foi possivel alterar a senha'
+            'message' => 'não foi possivel alterar a password'
         ]);
     }
 }

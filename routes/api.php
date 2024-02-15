@@ -6,6 +6,9 @@ use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\FormaDePagamentoController;
 use App\Http\Controllers\ProfissionalController;
 use App\Http\Controllers\ServicoController;
+use App\Http\Middleware\IsAuthenticated;
+use App\Http\Middleware\SetSanctumGuard;
+use App\Models\Adm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -62,7 +65,14 @@ Route::put('atualizarAgenda', [agendaController::class, 'update']);
 Route::get('retornarTodosAgenda', [agendaController::class, 'retornarTodos']);
 
 //adm
-Route::post('adm/servico/cadastro', [ServicoController::class, 'store']);
+Route::post('adm/create', [AdmController::class, 'store']);
+Route::post('adm/login', [AdmController::class, 'login']);
+
+Route::get('adm/teste', [AdmController::class, 'verificarUsuarioLogado'])->middleware([
+    'auth:sanctum',
+    SetSanctumGuard::class,
+    IsAuthenticated::class
+]);
 Route::put('adm/servico/update', [ServicoController::class, 'update']);
 Route::delete('adm/servico/delete/{id}', [ServicoController::class, 'excluir']);
 

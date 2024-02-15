@@ -5,40 +5,73 @@ namespace App\Http\Controllers;
 use App\Http\Requests\admFormRequest;
 use App\Models\Adm;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class AdmController extends Controller
 {
-    public function cadastroAdm(admFormRequest $request)
-    {
-        $adm = adm::create([
-            'nome' => $request->nome,
-            'celular' => $request->celular,
-            'email' => $request->email,
-            'cpf' => $request->cpf,
-            'dataNascimento' => $request->dataNascimento,
-            'cidade' => $request->cidade,
-            'estado' => $request->estado,
-            'pais' => $request->pais,
-            'rua' => $request->rua,
-            'numero' => $request->numero,
-            'bairro' => $request->bairro,
-            'cep' => $request->cep,
-            'complemento' => $request->complemento,
-            'senha' => Hash::make($request->senha),
+    public function store(Request $request){
+        try {
+            $data = $request->all();
 
-        ]);
+            $data['password'] = Hash::make($request->password);
 
-        return response()->json([
-            "success" => true,
-            "message" => "adm Cadastrado com sucesso",
-            "data" => $adm
-        ], 200);
+            $response= Adm::create($data)->createToken($request->server('HTTP_USER_AGENT'))->plainTextToken;
+
+            return response()->json([
+                'status'=> 'success',
+                'message'=> "Adm cadastrado com sucesso",
+                'token'=> $response
+            ],200);
+
+         } catch(\Throwable $th){
+            return response()->json([
+                'status'=> false,
+                'message'=> $th->getMessage()
+            ],500);
+         }
+    }
+
+    public function login(Request $request){
+        
+        try{
+
+            if(Auth::guard('adms')->attempt([
+                'email'=> $request->email,
+                'password'=> $request->password 
+            ])) {
+                
+                $user = Auth::guard('adms')->user();
+                $token = $user->createToken($request->server('HTTP_USER_AGENT', ['adms']))->plainTextToken;
+
+                return response()->json([
+                    'status' => true,
+                    'message' => 'login efetuado com sucesso',
+                    'token' => $token
+                ]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'credenciais incorretas'
+                ]);
+            }
+        } catch(\Throwable $th){
+            return response()->json([
+                'status'=> false,
+                'message'=> $th->getMessage() 
+            ], 500);
+        }
+    }
+
+    public function verificarUsuarioLogado(){
+
+        return 'logado';
+        
     }
 
     public function retornarTodos()
     {
-        $adm = Adm::all();
+        $adm =Adm::all();
         return response()->json([
             'status' => true,
             'data' => $adm
@@ -47,7 +80,7 @@ class AdmController extends Controller
 
     public function pesquisarPorId($id)
     {
-        $adm = adm::find($id);
+        $adm =Adm::find($id);
 
         if ($adm == null) {
             return response()->json([
@@ -63,7 +96,7 @@ class AdmController extends Controller
     }
     public function update(Request $request)
     {
-        $adm = adm::find($request->id);
+        $adm =Adm::find($request->id);
 
         if (!isset($adm)) {
             return response()->json([
@@ -72,11 +105,8 @@ class AdmController extends Controller
             ]);
         }
 
-        if (isset($request->nome)) {
-            $adm->nome = $request->nome;
-        }
-        if (isset($request->celular)) {
-            $adm->celular = $request->celular;
+        if (isset($request->name)) {
+            $adm->name = $request->name;
         }
         if (isset($request->email)) {
             $adm->email = $request->email;
@@ -84,35 +114,8 @@ class AdmController extends Controller
         if (isset($request->cpf)) {
             $adm->cpf = $request->cpf;
         }
-        if (isset($request->dataNascimento)) {
-            $adm->dataNascimento = $request->dataNascimento;
-        }
-        if (isset($request->cidade)) {
-            $adm->cidade = $request->cidade;
-        }
-        if (isset($request->estado)) {
-            $adm->estado = $request->estado;
-        }
-        if (isset($request->pais)) {
-            $adm->pais = $request->pais;
-        }
-        if (isset($request->rua)) {
-            $adm->rua = $request->rua;
-        }
-        if (isset($request->numero)) {
-            $adm->numero = $request->numero;
-        }
-        if (isset($request->bairro)) {
-            $adm->bairro = $request->bairro;
-        }
-        if (isset($request->cep)) {
-            $adm->cep = $request->cep;
-        }
-        if (isset($request->complemento)) {
-            $adm->complemento = $request->complemento;
-        }
-        if (isset($request->senha)) {
-            $adm->senha = $request->senha;
+        if (isset($request->password)) {
+            $adm->password = $request->password;
         }
 
         $adm->update();
@@ -126,7 +129,7 @@ class AdmController extends Controller
 
     public function excluir($id)
     {
-        $adm = adm::find($id);
+        $adm = Adm::find($id);
 
         if (!isset($adm)) {
             return response()->json([
@@ -145,7 +148,7 @@ class AdmController extends Controller
 
     public function esqueciSenhaAdm(Request $request)
     {
-        $adm = adm::where('cpf', $request->cpf)->where('email', $request->email)->first();
+        $adm = Adm::where('cpf', $request->cpf)->where('email', $request->email)->first();
 
         if (isset($adm)) {
             $adm->senha = Hash::make($adm->senha);
